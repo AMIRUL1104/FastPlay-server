@@ -3,7 +3,7 @@ import type { ObjectId } from "mongodb";
 export type UserRole = "user" | "admin";
 
 export interface UserProfile {
-  _id: string;
+  _id?: string;
 
   name: string;
   email: string;

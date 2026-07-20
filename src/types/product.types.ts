@@ -7,7 +7,7 @@ export type ProductCategory =
   | "gym-equipment";
 
 export interface Product {
-  _id: ObjectId;
+  _id?: ObjectId;
 
   name: string;
   slug: string;

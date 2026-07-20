@@ -5,8 +5,8 @@ import type { Filter, Sort } from "mongodb";
 import { productsCollection } from "../database/collections.js";
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
+const DEFAULT_LIMIT = 16;
+const MAX_LIMIT = 40;
 
 const SORT_OPTIONS: Record<string, Sort> = {
   newest: { createdAt: -1 },
@@ -173,7 +173,7 @@ export const getProductById = async (req: Request, res: Response) => {
 export const getFeaturedProducts = async (req: Request, res: Response) => {
   try {
     const products = await productsCollection
-      .find({ featured: true })
+      .find()
       .sort({ createdAt: -1 })
       .limit(8)
       .toArray();
