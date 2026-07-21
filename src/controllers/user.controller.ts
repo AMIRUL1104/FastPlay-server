@@ -1,43 +1,57 @@
 import type { Request, Response } from "express";
 import { ObjectId } from "mongodb";
 
-import { userProfileCollection } from "../database/collections.js";
+import {
+  userCollection,
+  userProfileCollection,
+} from "../database/collections.js";
 
 import type { AuthRequest } from "../types/auth.types.js";
+import type { UserProfileDetail } from "../types/user.types.js";
 
 // Create User
 export const createUser = async (req: AuthRequest, res: Response) => {
   try {
-    const userData = {
-      userId: req.user!._id,
-      fullName: req.user!.name,
-      email: req.user!.email,
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: User not found in request",
+      });
+    }
+
+    // নতুন টাইপ ব্যবহার করা হলো (ইনসার্টের সময় _id দরকার নেই)
+    const userData: Omit<UserProfileDetail, "_id"> = {
+      userId: new ObjectId(req.user._id),
+      fullName: req.user.name,
+      email: req.user.email,
       phoneNumber: "",
       district: "",
       area: "",
       avatarUrl: null,
-      role: req.user!.role,
+      role: req.user.role,
       memberSince: new Date(),
     };
 
     const result = await userProfileCollection.insertOne(userData);
+
     if (result.insertedId) {
-      res.status(201).json({
+      return res.status(201).json({
         success: true,
         message: "User created successfully.",
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: "Failed to create user.",
+        data: { _id: result.insertedId, ...userData },
       });
     }
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create user.",
+    });
   } catch (error) {
     console.error("Failed to create user:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: "Failed to create user.",
+      message: "Failed to create user due to server error.",
     });
   }
 };
@@ -45,7 +59,8 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 // Get User
 export const getUserProfile = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.user!._id;
+    const userId = req.user?._id as string;
+    // console.log(userId);
 
     if (!ObjectId.isValid(userId)) {
       return res.status(400).json({
@@ -54,8 +69,8 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const user = await userProfileCollection.findOne({
-      userId: userId,
+    const user = await userCollection.findOne({
+      _id: new ObjectId(userId),
     });
 
     if (!user) {
@@ -156,7 +171,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       updatedAt: new Date(),
     };
     const result = await userProfileCollection.updateOne(
-      { userId: userId },
+      { userId: new ObjectId(userId) },
       { $set: updatedUserData },
     );
 
@@ -196,7 +211,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     }
 
     const result = await userProfileCollection.deleteOne({
-      userId: userId,
+      userId: new ObjectId(userId),
     });
 
     if (result.deletedCount === 0) {

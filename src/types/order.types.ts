@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import type { UserSnapshot } from "./user.types.js";
 import type { CartItem } from "./cart.types.js";
 
-export type OrderStatus = "pending" | "accepted" | "rejected";
+export type OrderStatus = "pending" | "accepted" | "rejected" | "cancelled";
 
 export interface OrderUserSnapshot extends UserSnapshot {
   phone: string;
@@ -11,6 +11,7 @@ export interface OrderUserSnapshot extends UserSnapshot {
 export interface ShippingAddress {
   address: string;
   city: string;
+  phone: string;
 }
 
 export interface Order {
