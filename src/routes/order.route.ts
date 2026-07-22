@@ -8,6 +8,7 @@ import {
   acceptOrder,
   rejectOrder,
   cancelOrder,
+  completeOrder,
 } from "../controllers/order.controller.js";
 
 import { verifyToken } from "../middleware/auth.middleware.js";
@@ -35,5 +36,8 @@ router.patch("/:id/reject", verifyToken, verifyAdmin, rejectOrder);
 
 // cancel order
 router.patch("/:id/cancel", verifyToken, cancelOrder);
+
+// complete order
+router.patch("/:id/complete", verifyToken, verifyAdmin, completeOrder);
 
 export default router;

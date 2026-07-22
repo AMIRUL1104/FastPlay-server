@@ -2,8 +2,12 @@ import { ObjectId } from "mongodb";
 import type { UserSnapshot } from "./user.types.js";
 import type { CartItem } from "./cart.types.js";
 
-export type OrderStatus = "pending" | "accepted" | "rejected" | "cancelled";
-
+export type OrderStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled"
+  | "completed";
 export interface OrderUserSnapshot extends UserSnapshot {
   phone: string;
 }

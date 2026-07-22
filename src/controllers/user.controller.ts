@@ -69,9 +69,10 @@ export const getUserProfile = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const user = await userCollection.findOne({
-      _id: new ObjectId(userId),
+    const user = await userProfileCollection.findOne({
+      userId: new ObjectId(userId),
     });
+    console.log(user);
 
     if (!user) {
       return res.status(404).json({

@@ -397,3 +397,68 @@ export const cancelOrder = async (
     });
   }
 };
+
+// complete order
+export const completeOrder = async (
+  req: AuthRequest,
+  res: Response,
+): Promise<void> => {
+  try {
+    const id = req.params.id as string;
+    const user = req.user!;
+    if (!ObjectId.isValid(id)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid order id.",
+      });
+      return;
+    }
+    const order = await orderCollection.findOne({
+      _id: new ObjectId(id),
+    });
+    if (!order) {
+      res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+      return;
+    }
+    // User can cancel only own order
+    if (
+      user.role !== "admin" &&
+      !order.user.userId.equals(new ObjectId(user._id))
+    ) {
+      res.status(403).json({
+        success: false,
+        message: "Forbidden.",
+      });
+      return;
+    }
+    if (order.status !== "pending" && order.status !== "accepted") {
+      res.status(400).json({
+        success: false,
+        message: "This order cannot be cancelled.",
+      });
+      return;
+    }
+    await orderCollection.updateOne(
+      { _id: order._id },
+      {
+        $set: {
+          status: "completed",
+          updatedAt: new Date(),
+        },
+      },
+    );
+    res.status(200).json({
+      success: true,
+      message: "Order completed successfully.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to complete order.",
+    });
+  }
+};
