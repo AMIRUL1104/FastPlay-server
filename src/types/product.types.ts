@@ -27,3 +27,14 @@ export interface Product {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface ProductSearchFilters {
+  search?: string;
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  featured?: boolean;
+  limit?: number;
+}
